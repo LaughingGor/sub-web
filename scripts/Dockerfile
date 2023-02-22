@@ -1,7 +1,7 @@
 
 FROM alpine:3.16 as code
 WORKDIR /
-RUN apk add --no-cache --virtual git && \
+RUN apk add --no-cache --virtual .build-tools git g++ build-base linux-headers cmake && \
     git clone https://github.com/LaughingGor/sub-web --depth=1
 
 # ---- Dependencies ----
