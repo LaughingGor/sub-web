@@ -1,12 +1,12 @@
 
 FROM alpine:3.16 as code
-WORKDIR /app
+WORKDIR /
 RUN apk add --no-cache --virtual git && \
     git clone https://github.com/LaughingGor/sub-web --depth=1
 
 # ---- Dependencies ----
 FROM node:16-alpine AS build
-COPY --from=code /app/sub-web /app
+COPY --from=code /sub-web /app
 WORKDIR /app
 RUN cd sub-web && \
     yarn install && \
