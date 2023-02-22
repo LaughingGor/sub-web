@@ -3,7 +3,6 @@
 # ---- Dependencies ----
 FROM node:16-alpine AS build
 WORKDIR /app
-COPY package.json ./
 RUN apk add --no-cache --virtual git && \
     git clone https://github.com/LaughingGor/sub-web --depth=1 && \
     cd sub-web && \
