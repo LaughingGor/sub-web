@@ -8,8 +8,7 @@ RUN apk add --no-cache git && \
 FROM node:16-alpine AS build
 COPY --from=code /code/sub-web /app
 WORKDIR /app
-RUN cd sub-web && \
-    yarn install && \
+RUN yarn install && \
     yarn build
 
 FROM nginx:1.16-alpine
