@@ -1,8 +1,8 @@
 
 FROM alpine:3.16 as code
 WORKDIR /app
-RUN apk add --no-cache --virtual git && \
-    git clone https://github.com/LaughingGor/sub-web --depth=1
+RUN apk add --no-cache --virtual git
+    #git clone https://github.com/LaughingGor/sub-web --depth=1
 
 # ---- Dependencies ----
 FROM node:16-alpine AS build
