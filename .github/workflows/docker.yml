@@ -8,14 +8,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  amd64_build:
+
+build:
+    name: Build
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Get dependencies and build
+      run: |
+        yarn install
+        yarn build
+    - name: Upload
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: /dist/
+
+
+  amd64_docker:
     name: Build AMD64 Image
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base
-        uses: actions/checkout@v3
+      - name: Download dist
+        uses: actions/download-artifact@v3
         with:
-          fetch-depth: 0
+          name: dist
+          path: /dist
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -37,7 +67,7 @@ jobs:
         with:
           platforms: linux/amd64
           context: scripts/
-          tags: longzhiyi/subconverter:latest
+          tags: longzhiyi/sub-web:latest
           build-args: |
             SHA=${{ steps.vars.outputs.sha_short }}
           outputs: type=image,push=true
@@ -58,7 +88,7 @@ jobs:
         with:
           platforms: linux/amd64
           context: scripts/
-          tags: longzhiyi/subconverter:${{steps.version.outputs.result}}
+          tags: longzhiyi/sub-web:${{steps.version.outputs.result}}
           outputs: type=image,push=true
 
       - name: Save digest
@@ -75,14 +105,16 @@ jobs:
           name: digest_amd64
           path: /tmp/digest.txt
 
-  x86_build:
+  x86_docker:
     name: Build x86 Image
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base
-        uses: actions/checkout@v3
+      - name: Download dist
+        uses: actions/download-artifact@v3
         with:
-          fetch-depth: 0
+          name: dist
+          path: /dist
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -104,7 +136,7 @@ jobs:
         with:
           platforms: linux/386
           context: scripts/
-          tags: longzhiyi/subconverter:latest
+          tags: longzhiyi/sub-web:latest
           build-args: |
             SHA=${{ steps.vars.outputs.sha_short }}
           outputs: type=image,push=true
@@ -288,16 +320,11 @@ jobs:
   #         name: digest_arm64
   #         path: /tmp/digest.txt
 
-  build:
-    name: Build
-    needs: [amd64_build, x86_build]
+  build_docker:
+    name: build_docker
+    needs: [amd64_docker, x86_docker]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
