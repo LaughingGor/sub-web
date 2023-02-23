@@ -35,7 +35,6 @@ build:
         name: dist
         path: /dist/
 
-
   amd64_docker:
     name: Build AMD64 Image
     needs: [build]
