@@ -334,6 +334,10 @@ jobs:
     needs: [amd64_docker, x86_docker]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout base
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
