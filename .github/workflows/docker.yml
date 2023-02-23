@@ -256,7 +256,7 @@ jobs:
   #         name: digest_armv7
   #         path: /tmp/digest.txt
 
-  arm64_build:
+  arm64_docker:
     name: Build ARM64 Image
     runs-on: [self-hosted, linux, ARM64]
     steps:
@@ -337,7 +337,7 @@ jobs:
 
   build_docker:
     name: build_docker
-    needs: [amd64_docker, x86_docker]
+    needs: [amd64_docker, x86_docker, arm64_docker]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout base
