@@ -166,7 +166,7 @@ jobs:
         with:
           platforms: linux/386
           context: scripts/
-          tags: longzhiyi/subconverter:${{steps.version.outputs.result}}
+          tags: longzhiyi/sub-web:${{steps.version.outputs.result}}
           outputs: type=image,push=true
 
       - name: Save digest
@@ -256,78 +256,84 @@ jobs:
   #         name: digest_armv7
   #         path: /tmp/digest.txt
 
-  # arm64_build:
-  #   name: Build ARM64 Image
-  #   runs-on: [self-hosted, linux, ARM64]
-  #   steps:
-  #     - name: Checkout base
-  #       uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
+  arm64_build:
+    name: Build ARM64 Image
+    runs-on: [self-hosted, linux, ARM64]
+    steps:
+      - name: Checkout base
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v2
+      - name: Download dist
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: ./scripts/dist
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-  #     - name: Docker login
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-  #     - name: Get commit SHA
-  #       id: vars
-  #       run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Build and export
-  #       id: build
-  #       if: github.ref == 'refs/heads/master'
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         platforms: linux/arm64
-  #         context: scripts/
-  #         tags: longzhiyi/subconverter:latest
-  #         build-args: |
-  #           SHA=${{ steps.vars.outputs.sha_short }}
-  #           THREADS=2
-  #         outputs: type=image,push=true
+      - name: Get commit SHA
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-  #     - name: Replace tag without `v`
-  #       if: startsWith(github.ref, 'refs/tags/')
-  #       uses: actions/github-script@v6
-  #       id: version
-  #       with:
-  #         script: |
-  #           return context.payload.ref.replace(/\/?refs\/tags\/v/, '')
-  #         result-encoding: string
+      - name: Build and export
+        id: build
+        if: github.ref == 'refs/heads/master'
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/arm64
+          context: scripts/
+          tags: longzhiyi/sub-web:latest
+          build-args: |
+            SHA=${{ steps.vars.outputs.sha_short }}
+            THREADS=2
+          outputs: type=image,push=true
 
-  #     - name: Build release and export
-  #       id: build_rel
-  #       if: startsWith(github.ref, 'refs/tags/')
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         platforms: linux/arm64
-  #         context: scripts/
-  #         tags: longzhiyi/subconverter:${{steps.version.outputs.result}}
-  #         build-args: |
-  #           THREADS=2
-  #         outputs: type=image,push=true
+      - name: Replace tag without `v`
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/github-script@v6
+        id: version
+        with:
+          script: |
+            return context.payload.ref.replace(/\/?refs\/tags\/v/, '')
+          result-encoding: string
 
-  #     - name: Save digest
-  #       if: github.ref == 'refs/heads/master'
-  #       run: echo ${{ steps.build.outputs.digest }} > /tmp/digest.txt
+      - name: Build release and export
+        id: build_rel
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/arm64
+          context: scripts/
+          tags: longzhiyi/sub-web:${{steps.version.outputs.result}}
+          build-args: |
+            THREADS=2
+          outputs: type=image,push=true
 
-  #     - name: Save release digest
-  #       if: startsWith(github.ref, 'refs/tags/')
-  #       run: echo ${{ steps.build_rel.outputs.digest }} > /tmp/digest.txt
+      - name: Save digest
+        if: github.ref == 'refs/heads/master'
+        run: echo ${{ steps.build.outputs.digest }} > /tmp/digest.txt
 
-  #     - name: Upload artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: digest_arm64
-  #         path: /tmp/digest.txt
+      - name: Save release digest
+        if: startsWith(github.ref, 'refs/tags/')
+        run: echo ${{ steps.build_rel.outputs.digest }} > /tmp/digest.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: digest_arm64
+          path: /tmp/digest.txt
 
   build_docker:
     name: build_docker
