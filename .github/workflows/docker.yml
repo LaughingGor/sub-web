@@ -258,7 +258,8 @@ jobs:
 
   arm64_docker:
     name: Build ARM64 Image
-    runs-on: [self-hosted, linux, ARM64]
+    needs: [build]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout base
         uses: actions/checkout@v3
