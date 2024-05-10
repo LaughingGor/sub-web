@@ -213,9 +213,9 @@ export default {
           Surge3: "surge&ver=3",
         },
         
-        backendOptions: {
+        backendOptions: [{
           value: "https://subconverter.freedoby.top:9999/sub?",
-        },
+        }],
         remoteConfig: [
           {
 label: "ACL4SSR",
@@ -766,7 +766,7 @@ options: [
     createFilter(queryString) {
       return candidate => {
         return (
-          candidate.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+          candidate.value.toLowerCase().indexOf(queryString.toLowerCase()) !== -1
         );
       };
     },
