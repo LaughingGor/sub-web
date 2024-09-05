@@ -201,6 +201,7 @@ const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED
 const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
 const shortUrlBackend = process.env.VUE_APP_MYURLS_API
+const shortUrlBackendApiKey = process.env.VUE_APP_MYURLS_API_KEY
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
 const tgBotLink = process.env.VUE_APP_BOT_LINK
 
@@ -288,7 +289,12 @@ options: [
           {
           label: "ACL4SSR_Online_Full 全分组 重度用户使用 (与Github同步)",
           value:
-          "https://raw.githubusercontent.com/LaughingGor/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini"
+          "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini"
+          },
+          {
+          label: "ACL4SSR_Online_Full_Tiktok 全分组 带Tiktok规则 重度用户使用 (与Github同步)",
+          value:
+          "https://raw.githubusercontent.com/LaughingGor/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_Tiktok.ini"
           },
           {
           label: "ACL4SSR_Online_Full_NoAuto.ini 全分组 无自动测速 重度用户使用 (与Github同步)",
@@ -621,7 +627,10 @@ options: [
       this.loading = true;
 
       let data = new FormData();
-      data.append("longUrl", btoa(this.customSubUrl));
+      data.append("signature", shortUrlBackendApiKey);
+      data.append("action", "shorturl");
+      data.append("format", "json");
+      data.append("url", this.customSubUrl);
 
       this.$axios
         .post(shortUrlBackend, data, {
@@ -630,12 +639,12 @@ options: [
           }
         })
         .then(res => {
-          if (res.data.Code === 1 && res.data.ShortUrl !== "") {
-            this.curtomShortSubUrl = res.data.ShortUrl;
-            this.$copyText(res.data.ShortUrl);
+          if (res.url != null) {
+            this.curtomShortSubUrl = res.shorturl;
+            this.$copyText(res.shorturl);
             this.$message.success("短链接已复制到剪贴板");
           } else {
-            this.$message.error("短链接获取失败：" + res.data.Message);
+            this.$message.error("短链接获取失败：" + res.errorCode);
           }
         })
         .catch(() => {
