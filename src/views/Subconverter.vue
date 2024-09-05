@@ -235,7 +235,7 @@ export default {
         },
         
         backendOptions: [{
-          value: "https://subconverter.freedoby.top:9999/sub?",
+          value: "https://subconverter.dxget.com/sub?",
         }],
         remoteConfig: [
           {
