@@ -630,7 +630,7 @@ options: [
       data.append("signature", shortUrlBackendApiKey);
       data.append("action", "shorturl");
       data.append("format", "json");
-      data.append("url", this.customSubUrl);
+      data.append("url", encodeURI(this.customSubUrl));
 
       this.$axios
         .post(shortUrlBackend, data, {
@@ -639,12 +639,12 @@ options: [
           }
         })
         .then(res => {
-          if (res.url != null) {
-            this.curtomShortSubUrl = res.shorturl;
-            this.$copyText(res.shorturl);
+          if (res.data.status == "success" && res.data.statusCode == 200) {
+            this.curtomShortSubUrl = res.data.shorturl;
+            this.$copyText(res.data.shorturl);
             this.$message.success("短链接已复制到剪贴板");
           } else {
-            this.$message.error("短链接获取失败：" + res.errorCode);
+            this.$message.error("短链接获取失败：" + res.data.errorCode);
           }
         })
         .catch(() => {
