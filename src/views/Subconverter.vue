@@ -630,7 +630,7 @@ options: [
       data.append("signature", shortUrlBackendApiKey);
       data.append("action", "shorturl");
       data.append("format", "json");
-      data.append("url", encodeURI(this.customSubUrl));
+      data.append("url", this.customSubUrl);
 
       this.$axios
         .post(shortUrlBackend, data, {
